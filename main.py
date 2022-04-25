@@ -60,7 +60,6 @@ def execute_command(input_command, generals):
 
     return True
 
-
 if __name__ == "__main__":
     N = 4
     for i in range(N):
