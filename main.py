@@ -1,5 +1,8 @@
 import socket
 import threading
+import os
+
+generals = []
 
 
 class General(threading.Thread):
@@ -27,14 +30,48 @@ class General(threading.Thread):
 
     def run(self):
         while True:
-            print(1)
-            break
+            pass
+
+
+def list_generals(generals):
+    for general in generals:
+        print(f"G{general.id}, {'primary' if general.is_primary else 'secondary'}, state={general.state}")
+
+
+def execute_command(input_command, generals):
+    cmd = input_command.lower().split()
+    if cmd is None or len(cmd) == 0:
+        print("Command is missing")
+        return True
+
+    command = cmd[0]
+
+    if command == 'g-state':
+        try:
+            list_generals(generals)
+        except:
+            print("Error")
+
+    elif command == 'exit':
+        return False
+
+    else:
+        print("Command not found")
+
+    return True
 
 
 if __name__ == "__main__":
     N = 4
-    generals = []
     for i in range(N):
         general = General(i + 1, 8000 + i, i == 0)
         generals.append(general)
         general.start()
+
+    running = True
+    while running:
+        command = input("Command: ")
+        running = execute_command(command, generals)
+
+    # kill
+    os._exit(0)
