@@ -2,6 +2,7 @@ import socket
 import threading
 import os
 import random
+import time
 
 generals = []
 
@@ -26,8 +27,6 @@ class General(threading.Thread):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.init_server()
 
-        self.
-
     def set_state(self, state):
         if state.lower() == 'faulty':
             self.state = 'F'
@@ -51,7 +50,7 @@ class General(threading.Thread):
             self.node_ports[int(port)] = message
             self.received_messages += 1
             if self.received_messages == len(self.node_ports):
-                # self.received_messages = 0
+                self.received_messages = 0
                 self.count_majority()
 
     def count_majority(self):
@@ -60,9 +59,6 @@ class General(threading.Thread):
             answers[self.node_ports[port]] += 1
         answers[self.primary_message] += 1
 
-        self.answers = answers
-
-        print(self.id, answers)
         self.majority = 'attack' if answers['attack'] > answers['retreat'] else 'retreat'
 
     def get_request(self):
@@ -94,9 +90,6 @@ def list_generals(generals, print_primary=True, print_state=True, print_majority
               f"{(', primary' if general.is_primary else ', secondary') if print_primary else ''}"
               f"{(', majority=' + general.majority) if print_majority else ''}"
               f"{(', state=' + general.state) if print_state else ''}")
-        general.majority = None
-
-
 
 
 def set_state(id, state, generals):
@@ -140,17 +133,16 @@ def send_order(order, generals):
         found_None = False
         for node in generals:
             if node.majority is None:
-                print(node.id, node.node_ports, node.majority, node.received_messages, node.answers)
                 found_None = True
 
     list_generals(generals, False, True, True)
     save_node_ports(generals)
 
 
-
 def save_node_ports(generals):
     for node_host in generals:
         node_host.node_ports = {}
+        node_host.majority = None
         for node_client in generals:
             if node_host.id != node_client.id and not node_client.is_primary:
                 node_host.collect_node_port(node_client.port)
