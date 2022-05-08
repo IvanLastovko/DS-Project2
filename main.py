@@ -128,7 +128,7 @@ def add_nodes(amount, generals):
 def call_coordinator(generals, order):
     faulty_generals = 0
     total_generals = len(generals)
-    choices = {'attack': 0, 'retreat': 0}
+    choices = {'attack': 0, 'retreat': 0, 'undefined': 0}
 
     for node in generals:
         faulty_generals += 1 if node.state == 'F' and not node.is_primary else 0
