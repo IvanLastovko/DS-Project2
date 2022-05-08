@@ -3,6 +3,7 @@ import threading
 import os
 import random
 import time
+import sys
 
 generals = []
 
@@ -80,7 +81,7 @@ class General(threading.Thread):
 
     def send_everyone(self, message, is_faulty):
         for port in self.node_ports.keys():
-            self.send_request(port, random.choice(['attack', 'retrieve']) if is_faulty else message)
+            self.send_request(port, random.choice(['attack', 'retreat']) if is_faulty else message)
 
     def run(self):
         while True:
@@ -226,7 +227,11 @@ def execute_command(input_command, generals):
 
 
 if __name__ == "__main__":
-    N = 4
+    N = int(sys.argv[1])
+    if N == 0:
+        print("Can not create 0 generals")
+        os._exit(0)
+
     for i in range(N):
         general = General(i + 1, 8000 + i, i == 0)
         general.start()
