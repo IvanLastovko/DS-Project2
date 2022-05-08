@@ -59,7 +59,10 @@ class General(threading.Thread):
             answers[self.node_ports[port]] += 1
         answers[self.primary_message] += 1
 
-        self.majority = 'attack' if answers['attack'] > answers['retreat'] else 'retreat'
+        if answers['attack'] != answers['retreat']:
+            self.majority = 'attack' if answers['attack'] > answers['retreat'] else 'retreat'
+        else:
+            self.majority = 'undefined'
 
     def get_request(self):
         try:
@@ -121,6 +124,33 @@ def add_nodes(amount, generals):
     list_generals(generals, True, False)
 
 
+def call_coordinator(generals, order):
+    faulty_generals = 0
+    total_generals = len(generals)
+    choices = {'attack': 0, 'retreat': 0}
+
+    for node in generals:
+        faulty_generals += 1 if node.state == 'F' and not node.is_primary else 0
+        if not node.is_primary:
+            choices[node.majority] += 1
+
+    majority = 'attack' if choices['attack'] > choices['retreat'] else 'retreat'
+
+    if faulty_generals * 3 + 1 > total_generals:
+        for node in generals:
+            if not node.is_primary:
+                node.majority = 'undefined'
+        list_generals(generals, False, True, True)
+        print('Execute order: cannot be determined – not enough generals in the system! '
+              f'{faulty_generals} faulty node in the system - {total_generals - 1} out of {total_generals} quorum not consistent')
+    else:
+        list_generals(generals, False, True, True)
+        print(
+            f'Execute order: {majority}! {str(faulty_generals) + " faulty" if faulty_generals else "Non-faulty"} '
+            f'node{"s" if faulty_generals > 1 else ""} in the system – '
+            f'{total_generals - 1 - faulty_generals} out of {total_generals} quorum suggest {majority}')
+
+
 def send_order(order, generals):
     if generals[0].is_primary:
         generals[0].majority = order
@@ -128,14 +158,14 @@ def send_order(order, generals):
     else:
         print("Error! General is not primary!")
 
-    found_None = True
-    while found_None:
-        found_None = False
+    found_none = True
+    while found_none:
+        found_none = False
         for node in generals:
             if node.majority is None:
-                found_None = True
+                found_none = True
 
-    list_generals(generals, False, True, True)
+    call_coordinator(generals, order)
     save_node_ports(generals)
 
 
