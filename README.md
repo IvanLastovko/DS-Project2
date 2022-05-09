@@ -16,4 +16,4 @@ It will open up command prompt where you will need to enter any of the following
 * `g-kill {general ID}` - removes mentioned node from the list of generals.
 * `actual-order {attack | retreat}` - primary node will send the order to other generals and it will start the Byzantine General’s problem.
 
-For the algoritm to work properly, the total amount of nodes must be greater or equal to $3k+1$ where $k$ is the amount of *faulty* generals.
+For the algoritm to work properly, the total amount of nodes must be greater or equal to $$3k+1$$ where $k$ is the amount of *faulty* generals.
